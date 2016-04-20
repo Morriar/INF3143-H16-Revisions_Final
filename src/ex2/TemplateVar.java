@@ -15,13 +15,15 @@
  */
 package ex2;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.java.contract.Ensures;
+import com.google.java.contract.Requires;
 
 public class TemplateVar {
 
     String varString;
 
+    @Requires("varString != null")
+    @Ensures("this.varString == varString")
     public TemplateVar(String varString) throws IllegalTemplateVar {
         this.varString = varString;
         if (!checkVarString(varString)) {
@@ -29,14 +31,20 @@ public class TemplateVar {
         }
     }
 
+    @Requires("varString != null")
+    @Ensures("result == varString.matches(\"\\\\{\\\\{.+\\\\}\\\\}\")")
     private boolean checkVarString(String varString) {
         return varString.matches("\\{\\{.+\\}\\}");
     }
 
+    @Requires("this.varString != null")
+    @Ensures("result == varString.substring(2, varString.length() - 2)")
     public String getVarName() {
         return varString.substring(2, varString.length() - 2);
     }
 
+    @Requires("this.varString != null")
+    @Ensures("result.equals(this.varString.matches(\"\\\\{\\\\{.+\\\\}\\\\}\"))")
     public String getRegex() {
         String res = varString;
         res = res.replaceAll("\\{", "\\\\{");

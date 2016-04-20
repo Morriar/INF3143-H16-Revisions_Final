@@ -15,6 +15,8 @@
  */
 package ex2;
 
+import com.google.java.contract.Ensures;
+import com.google.java.contract.Requires;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -28,10 +30,14 @@ public class Template {
 
     boolean isParsed = false;
 
+    @Requires("templateString != null")
+    @Ensures("this.templateString != null")
     public Template(String templateString) {
         this.templateString = templateString;
     }
 
+    @Requires("this.templateString != null")
+    @Ensures({"this.isParsed", "this.vars != null"})
     public void parse() throws IllegalTemplateVar {
         vars = new HashMap<>();
         Pattern re = Pattern.compile("\\{\\{.+\\}\\}");
@@ -42,6 +48,8 @@ public class Template {
         isParsed = true;
     }
 
+    @Requires("this.vars != null")
+    @Ensures("this.vars.size() == old(this.vars).size() + 1")
     public TemplateVar registerVar(String varString) throws IllegalTemplateVar {
         TemplateVar var = new TemplateVar(varString);
         vars.put(var.getVarName(), var);
@@ -52,10 +60,13 @@ public class Template {
         return vars.containsKey(varName);
     }
 
+    @Requires("hasVar(varName)")
     public TemplateVar getVar(String varName) {
         return vars.get(varName);
     }
 
+    @Requires("isParsed")
+    @Ensures("result != null")
     public String render(Map<String, Object> values) throws IllegalTemplateInput {
         String output = templateString;
         for (String k : values.keySet()) {
